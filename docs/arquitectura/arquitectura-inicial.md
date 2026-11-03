@@ -78,7 +78,7 @@ Estos campos resumen lo identificado; campos adicionales deben justificarse cont
 
 | Entidad | Campos documentados o necesarios para los criterios existentes | Pendientes |
 |---|---|---|
-| `Clientes` | Código/identificador interno único; nombre o razón social; NIT/documento; contacto; dirección; estado activo/inactivo. | Ciudad aparece en el prototipo; confirmar si forma parte de la línea base. Definir formato del código. |
+| `Clientes` | `Id` (`Guid`), `Codigo` único, `RazonSocial`, `NitDocumento` (sin unicidad), `Telefono`, `Direccion`, `Email`, `FechaRegistro` (`DateTime`) y `Estado` (`Activo`/`Inactivo`). Campos obligatorios: `Codigo`, `RazonSocial` y `NitDocumento`. | Ciudad fuera del alcance inicial. Definir comparación de códigos y campos editables; no validar formatos específicos de NIT, teléfono o correo. |
 | `OrdenesServicio` | Identificador único; `ClienteId`; fecha de solicitud; estado; observaciones; motivo de cancelación cuando aplique. | El prototipo agrega ruta, carga y peso en la orden; el documento ubica ruta en viaje y descripción/peso en remesa. Resolver la fuente única de esos campos. |
 | `Remesas` | Identificador/número único; `OrdenId`; descripción de mercancía; peso; estado. | Origen/destino solo si el modelo los define; decidir si se derivan de la ruta. |
 | `Viajes` | Identificador; `RutaId`; `VehiculoId`; `ConductorId`; fecha de salida; fecha estimada; fecha real; estado. | Precisar fechas estimadas/reales de salida y llegada, y cómo registrar una excepción aprobada al cierre. La remesa se relaciona por `RemesaViaje`, no con un `RemesaId` directo. |

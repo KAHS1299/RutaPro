@@ -1,0 +1,72 @@
+name: RutaPro .NET CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and test (.NET 10)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore solution
+        run: dotnet restore RutaPro.sln
+
+      - name: Build solution (Release)
+        id: build
+        run: dotnet build RutaPro.sln --configuration Release --no-restore
+
+      - name: Test RutaPro.Domain.Tests
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: >-
+          dotnet test tests/RutaPro.Domain.Tests/RutaPro.Domain.Tests.csproj
+          --configuration Release
+          --no-build
+          --no-restore
+          --logger "trx;LogFileName=Domain.Tests.trx"
+          --results-directory TestResults/Domain
+
+      - name: Test RutaPro.Application.Tests
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: >-
+          dotnet test tests/RutaPro.Application.Tests/RutaPro.Application.Tests.csproj
+          --configuration Release
+          --no-build
+          --no-restore
+          --logger "trx;LogFileName=Application.Tests.trx"
+          --results-directory TestResults/Application
+
+      - name: Test RutaPro.Api.IntegrationTests
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: >-
+          dotnet test tests/RutaPro.Api.IntegrationTests/RutaPro.Api.IntegrationTests.csproj
+          --configuration Release
+          --no-build
+          --no-restore
+          --logger "trx;LogFileName=Api.IntegrationTests.trx"
+          --results-directory TestResults/Api.Integration
+
+      - name: Upload TRX test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: RutaPro-test-results
+          path: TestResults/**/*.trx
+          if-no-files-found: warn
